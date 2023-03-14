@@ -1,7 +1,6 @@
 trigger TRG_Contact on Contact (after insert, after delete, after Undelete) {
     Set<Id> accId = new Set<Id>();
     if(Trigger.isInsert || Trigger.isUndelete){
-        System.debug('inside insert and undelete');
         for(Contact con : Trigger.new){
             accId.add(con.AccountId);
         }
