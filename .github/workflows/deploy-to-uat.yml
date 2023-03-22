@@ -6,7 +6,7 @@ name: Dev - Deploy to UAT Org
 on:
   push:
     branches:
-        - dev
+        - master
     paths:
         - 'force-app/**'
         
