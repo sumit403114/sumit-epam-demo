@@ -2,6 +2,7 @@ trigger TRG_Contact on Contact (after insert, after delete, after Undelete) {
     Set<Id> accId = new Set<Id>();
     if(Trigger.isInsert || Trigger.isUndelete){
         for(Contact con : Trigger.new){
+            system.debug('testing deployment to uat');
             accId.add(con.AccountId);
         }
     }
