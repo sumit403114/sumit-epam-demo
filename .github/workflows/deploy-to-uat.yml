@@ -1,1 +1,63 @@
+#This worklflow is triggered on push on dev branch, and manually.
+name: Dev - Deploy to UAT Org
 
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  push:
+    branches:
+        - dev
+    paths:
+        - 'force-app/**'
+        
+jobs:
+# JOB 1: This workflow contains a single job called "deploy_uat"
+  deploy_uat:
+    name: Dev - Deploy to UAT ORG
+    runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      # Install Salesforce CLI
+      - name: 'Install Salesforce CLI'
+        run: |
+            wget https://developer.salesforce.com/media/salesforce-cli/sfdx/channels/stable/sfdx-linux-x64.tar.xz
+            mkdir ~/sfdx
+            tar xJf sfdx-linux-x64.tar.xz -C ~/sfdx --strip-components 1
+            echo "$HOME/sfdx/bin" >> $GITHUB_PATH
+            ~/sfdx/bin/sfdx version
+
+      # Checkout the source code
+      - name: 'Checkout source code'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # Prior to setting up this workflow, you have to create a Github Secret
+      # that contains the sfdx url of the integration/qa org.
+
+      # The steps to generate the url are here 
+      # https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_auth_sfdxurl.htm
+
+      # This URL can then be used with the sfdx auth:sfdxurl:store to authenticate
+      # the sfdx project in the repositry, against the org from which the URL
+      # was generated from. This works just like that, there's no need to create
+      # connected apps or any else. 
+
+      # The URL is stored in the Github Secret named SFDX_UAT_URL
+      # so here we store the URL into a text file
+      - name: 'Populate auth file with SFDX_URL secret of UAT org'
+        shell: bash
+        run: |
+            echo ${{ secrets.SFDX_UAT_URL}} > ./SFDX_UAT_URL.txt
+
+      # Authenticate to org using the URL stored in the text file
+      - name: 'Authenticate to UAT Org'
+        run: sfdx auth:sfdxurl:store -f ./SFDX_UAT_URL.txt -s -a uat
+
+      #push code to sandbox
+      - name: Push code to UAT org
+        run: 'sfdx force:source:deploy -p force-app/main/default -u uat'
+
+      # run apex test classes (alias required)
+      - name: Run tests
+        run: 'sfdx force:apex:test:run -u uat -d scripts/testreport -c -r json'
