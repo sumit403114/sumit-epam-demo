@@ -4,13 +4,7 @@ name: Dev - Deploy to UAT Org
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  workflow_dispatch:
-    inputs:
-      triggerAllActions:
-        description: 'Trigger All Actions' 
-        type: boolean    
-        required: true
-        default: false
+  workflow_dispatch
   push:
     branches:
         - dev
