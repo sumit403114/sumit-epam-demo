@@ -4,5 +4,6 @@ trigger TRG_Account on Account (before insert) {
     {
         //append 'Mr.' with every account name 
         a.Name = 'Mr.' + a.Name;
+        System.debug('inside before insert of account trigger');
     }
 }
