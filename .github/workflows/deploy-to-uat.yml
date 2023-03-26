@@ -1,8 +1,7 @@
-#This worklflow is triggered on push on dev branch, and manually.
+# This worklflow is triggered on push on dev branch, and manually.
 name: Dev - Deploy to UAT Org
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
+# Controls when the action will run.
 on: 
   workflow_dispatch:
   push:
@@ -10,9 +9,11 @@ on:
         - dev
         
 jobs:
-# JOB 1: This workflow contains a single job called "deploy_uat"
+# This workflow contains a single job called "deploy_uat"
   deploy_uat:
     name: Dev - Deploy to UAT ORG
+    # This job runs inside a VM. Here we can specify which OS this VM should run on. 
+    # In this case, we are going to run our commands on the latest version of ubuntu
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
@@ -44,7 +45,7 @@ jobs:
 
       # The URL is stored in the Github Secret named SFDX_UAT_URL
       # so here we store the URL into a text file
-      - name: 'Populate auth file with SFDX_URL secret of UAT org'
+      - name: 'Populate auth file with SFDX_UAT_URL secret of UAT org'
         shell: bash
         run: |
             echo ${{ secrets.SFDX_UAT_URL}} > ./SFDX_UAT_URL.txt
@@ -53,10 +54,10 @@ jobs:
       - name: 'Authenticate to UAT Org'
         run: sfdx auth:sfdxurl:store -f ./SFDX_UAT_URL.txt -s -a uat
 
-      #push code to sandbox
+      # Push code to sandbox
       - name: Push code to UAT org
         run: 'sfdx force:source:deploy -p force-app/main/default -u uat'
 
-      # run apex test classes (alias required)
+      # Run apex test classes (alias required)
       - name: Run tests
         run: 'sfdx force:apex:test:run -u uat -d scripts/testreport -c -r json'
