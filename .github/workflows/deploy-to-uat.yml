@@ -1,4 +1,4 @@
-# This worklflow is triggered on push on dev branch, and manually.
+# This worklflow is triggered on push on dev branch.
 name: Dev - Deploy to UAT Org
 
 # Controls when the action will run.
