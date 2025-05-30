@@ -4,7 +4,7 @@
     <caseSensitive>false</caseSensitive>
     <externalId>false</externalId>
     <label>Department Code</label>
-    <length>18</length>
+    <length>12</length>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Text</type>
